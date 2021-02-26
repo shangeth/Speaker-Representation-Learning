@@ -24,8 +24,7 @@ if __name__ == "__main__":
     parser.add_argument('--wav_len', type=int, default=16000 * 3)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--epochs', type=int, default=1500)
-    parser.add_argument('--hidden_dim', type=float, default=128)
-    parser.add_argument('--out_dim', type=float, default=251)
+    parser.add_argument('--hidden_dim', type=float, default=512)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--nworkers', type=int, default=int(int(Pool()._processes)*0.75))
     parser.add_argument('--dev', type=str, default=False)
@@ -51,7 +50,6 @@ if __name__ == "__main__":
         'model_architecture' : 'wav2vec + soft-attention',
         'model_finetune' : 'Layer 5&6',
         'hidden_dim': hparams.hidden_dim,
-        'out_dim': hparams.out_dim,
     }
 
     train_dataset = LibriMIDataset(root=hparams.data_root, wav_len=hparams.wav_len)
