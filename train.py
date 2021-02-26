@@ -14,8 +14,8 @@ import torch.utils.data as data
 import torchaudio
 import numpy as np
 
-from dataset import LibriMIDataset
-from models.PLModel import RepresentationModel
+from dataset import LibriRepresentationDataset
+from models.lightning_model import RepresentationModel
 
 if __name__ == "__main__":
 
@@ -37,22 +37,12 @@ if __name__ == "__main__":
 
 
     HPARAMS = {
-        'data_path' : hparams.data_root,
         'data_wav_len' : hparams.wav_len,
-        'data_batch_size' : hparams.batch_size,
-        'data_wav_augmentation' : 'Random Crop, Additive Noise',
-        'data_label_scale' : 'Standardization',
-
-        'training_optimizer' : 'Adam',
         'training_lr' : 1e-3,
-        'training_lr_scheduler' : '-',
-
-        'model_architecture' : 'wav2vec + soft-attention',
-        'model_finetune' : 'Layer 5&6',
         'hidden_dim': hparams.hidden_dim,
     }
 
-    train_dataset = LibriMIDataset(root=hparams.data_root, wav_len=hparams.wav_len)
+    train_dataset = LibriRepresentationDataset(root=hparams.data_root, wav_len=hparams.wav_len)
 
     trainloader = data.DataLoader(
         train_dataset, 

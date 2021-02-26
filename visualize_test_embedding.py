@@ -11,8 +11,6 @@ from models.PLModel import RepresentationModel
 
 from torch.utils.tensorboard import SummaryWriter
 
-
-
 if __name__ == "__main__":
 
     parser = ArgumentParser(add_help=True)

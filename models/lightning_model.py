@@ -52,7 +52,6 @@ class RepresentationModel(pl.LightningModule):
         yp = self.D(z_a, zp_a)
         yn = self.D(z_a, zn_a)
 
- 
         loss_p = self.classification_criterion(yp, torch.ones_like(yp, device=self.device)) 
         loss_n = self.classification_criterion(yn, torch.zeros_like(yn, device=self.device))
         loss_center = self.intra_utter_criterion(zp) + self.intra_utter_criterion(zn) + self.intra_utter_criterion(z)
@@ -66,8 +65,4 @@ class RepresentationModel(pl.LightningModule):
 
         return {'loss':loss}
     
-    # def training_epoch_end(self, outputs):
-    #     n_batch = len(outputs)
-    #     loss = torch.tensor([x['loss'] for x in outputs]).mean()
-    #     self.log('epoch_loss' , loss, prog_bar=True)
 

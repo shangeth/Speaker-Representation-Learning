@@ -26,17 +26,6 @@ class Accumulator(nn.Module):
         x = self.attention(x.transpose(1,2))
         return x
 
-
-class CenterLoss(nn.Module):
-    def __init__(self, dim=128):
-        super().__init__()
-        self.distance_metric = nn.MSELoss()
-
-    def forward(self, x):
-        center = torch.mean(x, 1).unsqueeze(1)
-        center = center.repeat(1, x.size(1), 1)
-        return self.distance_metric(center, x)
-
 class Discriminator(nn.Module):
     def __init__(self, dim=128):
         super().__init__()
@@ -52,3 +41,13 @@ class Discriminator(nn.Module):
     def forward(self, z1, z2):
         y_hat = self.classifier(torch.cat([z1, z2], 1))
         return y_hat
+
+class CenterLoss(nn.Module):
+    def __init__(self, dim=128):
+        super().__init__()
+        self.distance_metric = nn.MSELoss()
+
+    def forward(self, x):
+        center = torch.mean(x, 1).unsqueeze(1)
+        center = center.repeat(1, x.size(1), 1)
+        return self.distance_metric(center, x)

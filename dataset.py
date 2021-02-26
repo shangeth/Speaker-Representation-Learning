@@ -11,54 +11,8 @@ import torchaudio
 import wavencoder
 import random
 
-class LibriSRDataset(Dataset):
-    def __init__(self, root, url, 
-                    wav_len=16000, 
-                    train=True,
-                    noisedir='/home/shangeth/speaker_profiling/noise_datadir/noises'):
-        self.dataset = torchaudio.datasets.LIBRISPEECH(root=root, url=url)
-        self.labels = sorted([int(x) for x in os.listdir(os.path.join(root, 'LibriSpeech/train-clean-100/'))])
-        self.label_dict = {k: v for v, k in enumerate(self.labels)}
-        # print(self.label_dict)
 
-        # Transforms
-        self.wav_len = wav_len
-        self.train_transform = wavencoder.transforms.Compose([
-            wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len, pad_position='random', crop_position='random')
-            ])
-
-        self.test_transform = wavencoder.transforms.Compose([
-            wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len)
-            ])
-
-        self.train = train
-        self.noisedir = noisedir
-        if self.noisedir:
-            self.noise_transform = wavencoder.transforms.AdditiveNoise(self.noisedir)
-
-    def __len__(self):
-        return len(self.dataset)
-
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-
-        x, _, _, y, _, _ = self.dataset[idx]
-        if self.train:
-            x = self.train_transform(x)
-            if random.random() < 0.5:
-                x = self.noise_transform(x)
-        else:
-            x = self.test_transform(x)
-
-        y = self.label_dict[y]
-        if type(x).__module__ == np.__name__:
-            x = torch.tensor(x)
-
-        return x, y
-
-
-class LibriMIDataset(Dataset):
+class LibriRepresentationDataset(Dataset):
     def __init__(self, root,
                     wav_len=8000, 
                     train=True):
@@ -68,9 +22,12 @@ class LibriMIDataset(Dataset):
         # Transforms
         self.wav_len = wav_len
         self.train_transform = wavencoder.transforms.Compose([
-            wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len, pad_position='random', crop_position='random')
+            wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len, pad_position='random', crop_position='random'),
+            wavencoder.transforms.AWGNoise(p=0.1, snr_range=(15, 30)),
+            SpeedChange(factor_range=(-0.5, 0.5), p=0.1),
+            Clipping(p=0.1),
+            TimeShift(shift_factor=(10, 30), p=0.1)
             ])
-        self.spectral_transform = torchaudio.transforms.MFCC(log_mels=True)
 
     def __len__(self):
         return 25600
