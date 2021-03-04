@@ -20,23 +20,26 @@ from models.lightning_model import RepresentationModel
 if __name__ == "__main__":
 
     parser = ArgumentParser(add_help=True)
-    parser.add_argument('--data_root', type=str, default='./final_repr_data')
-    parser.add_argument('--wav_len', type=int, default=16000 * 3)
+    parser.add_argument('--data_root', type=str, default='/home/n1900235d/INTERSPEECH/final_repr_data')
+    parser.add_argument('--wav_len', type=int, default=16000 * 2)
     parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--epochs', type=int, default=1500)
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--hidden_dim', type=float, default=512)
-    parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--nworkers', type=int, default=int(int(Pool()._processes)*0.75))
+    parser.add_argument('--gpu', type=int, default="4")
+    parser.add_argument('--nworkers', type=int, default=2)
+    # int(int(Pool()._processes)*0.75))
     parser.add_argument('--dev', type=str, default=False)
 
 
     parser = pl.Trainer.add_argparse_args(parser)
     hparams = parser.parse_args()
 
-    print(f'#Cores = {hparams.nworkers}\t#GPU = {hparams.gpu}')
+    print(f'Available : #Cores = {str(int(Pool()._processes))}\t#GPU = {torch.cuda.device_count()}')
+    print(f'Used :      #Cores = {hparams.nworkers}\t#GPU = {hparams.gpu}')
 
 
     HPARAMS = {
+        'data_batch_size' : hparams.batch_size,
         'data_wav_len' : hparams.wav_len,
         'training_lr' : 1e-3,
         'hidden_dim': hparams.hidden_dim,
@@ -52,7 +55,6 @@ if __name__ == "__main__":
     )
 
     model = RepresentationModel(HPARAMS)
-    # print('Model = ', model)
 
     checkpoint_callback = ModelCheckpoint(
         monitor='epoch_loss', 
@@ -65,7 +67,7 @@ if __name__ == "__main__":
                         checkpoint_callback=checkpoint_callback,
                         distributed_backend='ddp',
                         # logger=logger,
-                        resume_from_checkpoint='/home/shangeth/INTERSPEECH/lightning_logs/version_49/checkpoints/epoch=37.ckpt'
+                        # resume_from_checkpoint='/home/shangeth/INTERSPEECH/lightning_logs/version_49/checkpoints/epoch=37.ckpt'
                         )
 
     trainer.fit(model, train_dataloader=trainloader)

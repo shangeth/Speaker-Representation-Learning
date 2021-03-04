@@ -2,3 +2,6 @@ torch
 torchaudio
 wavencoder
 pytorch_lightning
+pandas
+torch-optimizer
+transformers

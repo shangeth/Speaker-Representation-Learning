@@ -23,14 +23,15 @@ class LibriRepresentationDataset(Dataset):
         self.wav_len = wav_len
         self.train_transform = wavencoder.transforms.Compose([
             wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len, pad_position='random', crop_position='random'),
-            wavencoder.transforms.AWGNoise(p=0.1, snr_range=(15, 30)),
-            SpeedChange(factor_range=(-0.5, 0.5), p=0.1),
-            Clipping(p=0.1),
-            TimeShift(shift_factor=(10, 30), p=0.1)
+            wavencoder.transforms.AdditiveNoise('/home/n1900235d/INTERSPEECH/NoiseDataset', p=0.2),
+            # wavencoder.transforms.AWGNoise(p=0.1, snr_range=(15, 30)),
+            # wavencoder.transforms.SpeedChange(factor_range=(-0.5, 0.5), p=0.1),
+            # wavencoder.transforms.Clipping(p=0.1),
+            # wavencoder.transforms.TimeShift(shift_factor=(10, 30), p=0.1)
             ])
 
     def __len__(self):
-        return 25600
+        return 12800
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -57,10 +58,6 @@ class LibriRepresentationDataset(Dataset):
         filename = random.choice(os.listdir(os.path.join(self.root, n_key_speaker)))
         xn, _ = torchaudio.load(os.path.join(self.root, n_key_speaker, filename))
         xn = self.train_transform(xn)
-
-        x = self.spectral_transform(x)
-        xp = self.spectral_transform(xp)
-        xn = self.spectral_transform(xn)
         
         return x, xp, xn
 
