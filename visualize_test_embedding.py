@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from dataset import EmbDataset
-from models.PLModel import RepresentationModel
+from models.lightning_model import RepresentationModel
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -15,9 +15,9 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(add_help=True)
     parser.add_argument('--data_root', type=str, default='./final_emb_data')
-    parser.add_argument('--wav_len', type=int, default=48000)
-    parser.add_argument('--model_path', type=str, default="lightning_logs/version_51/checkpoints/epoch=1422.ckpt")
-    parser.add_argument('--hidden_dim', type=float, default=128)
+    parser.add_argument('--wav_len', type=int, default=16000 * 4)
+    parser.add_argument('--model_path', type=str, default="/home/n1900235d/INTERSPEECH/lightning_logs/version_1/checkpoints/epoch=990-step=49549.ckpt")
+    parser.add_argument('--hidden_dim', type=float, default=512)
 
     parser = pl.Trainer.add_argparse_args(parser)
     hparams = parser.parse_args()
@@ -52,8 +52,9 @@ if __name__ == "__main__":
 
     for x, ys, yg in tqdm(test_dataset):
         # z = torch.randn(1, 100).view(-1)
-        z = model(x.unsqueeze(0))
-        z_a = model.A(z).view(-1).cpu()
+        z = model.E.feature_extractor(x)
+        # z_a = model.A(z).view(-1).cpu()
+        z_a = z.mean(2).view(-1).cpu()
         embs.append(z_a)
 
         labels.append(ys)

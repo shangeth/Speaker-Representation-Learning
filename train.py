@@ -21,12 +21,12 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(add_help=True)
     parser.add_argument('--data_root', type=str, default='/home/n1900235d/INTERSPEECH/final_repr_data')
-    parser.add_argument('--wav_len', type=int, default=16000 * 2)
-    parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--wav_len', type=int, default=16000)
+    parser.add_argument('--batch_size', type=int, default=256)
+    parser.add_argument('--epochs', type=int, default=1000)
     parser.add_argument('--hidden_dim', type=float, default=512)
-    parser.add_argument('--gpu', type=int, default="4")
-    parser.add_argument('--nworkers', type=int, default=2)
+    parser.add_argument('--gpu', type=int, default="8")
+    parser.add_argument('--nworkers', type=int, default=8)
     # int(int(Pool()._processes)*0.75))
     parser.add_argument('--dev', type=str, default=False)
 
@@ -51,7 +51,8 @@ if __name__ == "__main__":
         train_dataset, 
         batch_size=HPARAMS['data_batch_size'], 
         shuffle=True, 
-        num_workers=hparams.nworkers
+        num_workers=hparams.nworkers,
+        drop_last=True
     )
 
     model = RepresentationModel(HPARAMS)
@@ -61,13 +62,15 @@ if __name__ == "__main__":
         mode='min',
         verbose=1)
 
-    trainer = pl.Trainer(fast_dev_run=hparams.dev, 
+    trainer = pl.Trainer(
+                        fast_dev_run=hparams.dev, 
                         gpus=hparams.gpu, 
                         max_epochs=hparams.epochs, 
                         checkpoint_callback=checkpoint_callback,
                         distributed_backend='ddp',
                         # logger=logger,
                         # resume_from_checkpoint='/home/shangeth/INTERSPEECH/lightning_logs/version_49/checkpoints/epoch=37.ckpt'
+                        # early_stop_callback=None
                         )
 
     trainer.fit(model, train_dataloader=trainloader)

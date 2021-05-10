@@ -22,9 +22,9 @@ class RepresentationModel(pl.LightningModule):
         self.classification_criterion = nn.BCELoss()
         self.lr = HPARAMS['training_lr']
 
-        print(self.E)
-        print(self.A)
-        print(self.D)
+        # print(self.E)
+        # print(self.A)
+        # print(self.D)
         print(f"Model Details: #Params = {self.count_total_parameters()}\t#Trainable Params = {self.count_trainable_parameters()}")
 
     def count_total_parameters(self):
@@ -60,7 +60,7 @@ class RepresentationModel(pl.LightningModule):
         loss_center = self.intra_utter_criterion(zp) + self.intra_utter_criterion(zn) + self.intra_utter_criterion(z)
         loss = loss_p + loss_n + 0.1 * loss_center
 
-        self.log('loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        # self.log('loss', loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log('loss_center', loss_center, on_step=False, on_epoch=True, prog_bar=True)
         self.log('loss_clf', loss_p+loss_n, on_step=False, on_epoch=True, prog_bar=True)
         self.log('loss_p', loss_p, on_step=False, on_epoch=True, prog_bar=False)
@@ -73,7 +73,7 @@ class RepresentationModel(pl.LightningModule):
         loss = torch.tensor([x['loss'] for x in outputs]).mean()
         self.log('epoch_loss' , loss, prog_bar=True)
 
-        # if self.current_epoch > 10:
-        #     for param in self.E.feature_extractor.parameters():
-        #         param.requires_grad = True
+        if self.current_epoch > 10:
+            for param in self.E.feature_extractor.parameters():
+                param.requires_grad = True
 

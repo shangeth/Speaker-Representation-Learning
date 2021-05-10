@@ -5,12 +5,12 @@ import wavencoder
 from transformers import Wav2Vec2Model
 
 class Encoder(nn.Module):
-    def __init__(self, dim=128, nhead=8, nlayer=1):
+    def __init__(self, dim=512, nhead=4, nlayer=1):
         super().__init__()
         # self.feature_extractor = wavencoder.models.Wav2Vec(pretrained=True)
         self.feature_extractor = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-base-960h").feature_extractor
-        for param in self.feature_extractor.parameters():
-            param.requires_grad = True
+        # for param in self.feature_extractor.parameters():
+        #     param.requires_grad = True
 
         # for param in self.feature_extractor.feature_extractor.conv_layers[5:].parameters():
         #     param.requires_grad = True
@@ -30,10 +30,11 @@ class Accumulator(nn.Module):
     def __init__(self, dim=128):
         super().__init__()
         self.dim = dim
-        self.attention = wavencoder.layers.SoftAttention(self.dim, self.dim)
+        # self.attention = wavencoder.layers.SoftAttention(self.dim, self.dim)
 
     def forward(self, x):
-        x = self.attention(x)
+        # x = self.attention(x)
+        x = x.mean(1)
         return x
 
 class Discriminator(nn.Module):

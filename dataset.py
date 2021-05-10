@@ -23,15 +23,15 @@ class LibriRepresentationDataset(Dataset):
         self.wav_len = wav_len
         self.train_transform = wavencoder.transforms.Compose([
             wavencoder.transforms.PadCrop(pad_crop_length=self.wav_len, pad_position='random', crop_position='random'),
-            wavencoder.transforms.AdditiveNoise('/home/n1900235d/INTERSPEECH/NoiseDataset', p=0.2),
+            wavencoder.transforms.AdditiveNoise('/home/n1900235d/INTERSPEECH/NoiseDataset', p=0.1),
             # wavencoder.transforms.AWGNoise(p=0.1, snr_range=(15, 30)),
             # wavencoder.transforms.SpeedChange(factor_range=(-0.5, 0.5), p=0.1),
-            # wavencoder.transforms.Clipping(p=0.1),
+            wavencoder.transforms.Clipping(p=0.1),
             # wavencoder.transforms.TimeShift(shift_factor=(10, 30), p=0.1)
             ])
 
     def __len__(self):
-        return 12800
+        return 102400
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -67,7 +67,7 @@ class EmbDataset(Dataset):
                     wav_len=8000):
         self.root = root
         self.files = os.listdir(root)
-        self.info_file = '/home/shangeth/INTERSPEECH/LibriSpeech/SPEAKERS.TXT'
+        self.info_file = '/home/n1900235d/INTERSPEECH/LibriSpeech/SPEAKERS.TXT'
         df = pd.read_csv(self.info_file, skiprows=11, delimiter='|', error_bad_lines=False)
         df.columns = [col.strip().replace(';', '').lower() for col in df.columns]
         df = df.assign(
@@ -76,7 +76,7 @@ class EmbDataset(Dataset):
                 name=df['name'].apply(lambda x: x.strip()),
             )
         self.info_df = df
-        self.spectral_transform = torchaudio.transforms.MFCC(log_mels=True)
+        # self.spectral_transform = torchaudio.transforms.MFCC(log_mels=True)
         # print(self.info_df.head())
 
         # Transforms
@@ -100,5 +100,5 @@ class EmbDataset(Dataset):
 
         x, _ = torchaudio.load(os.path.join(self.root, filename))
         x = self.transform(x)
-        x = self.spectral_transform(x)
+        # x = self.spectral_transform(x)
         return x, ys, yg
