@@ -5,3 +5,4 @@ pytorch_lightning==1.1.5
 pandas
 torch-optimizer
 transformers
+wget
